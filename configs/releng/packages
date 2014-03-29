@@ -39,9 +39,14 @@ ipw2200-fw
 irssi
 lftp
 linux-atm
+lsi-cfggen
+lsi-sas2ircu
+lsiutil
 lsof
 mc
+megaraid-cli
 mtools
+multipath-tools
 nethogs
 nfs-utils
 nilfs-utils
