@@ -55,6 +55,7 @@ partimage
 ppp
 pptpclient
 prebootloader
+python2
 refind-efi
 rfkill
 rp-pppoe
