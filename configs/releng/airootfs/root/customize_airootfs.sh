@@ -18,7 +18,6 @@ chmod 440 /etc/sudoers.d/g_wheel
 chmod 700 /root/.ssh
 chmod 600 /root/.ssh/authorized_keys
 
-sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
 sed -i 's/#\(Storage=\)auto/\1volatile/' /etc/systemd/journald.conf
 
 systemctl enable pacman-init.service sshd.service
