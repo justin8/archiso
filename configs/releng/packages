@@ -1,6 +1,6 @@
 arch-install-scripts
 b43-fwcutter
-bcache-tools-git
+bcache-tools
 bonnie++
 btrfs-progs
 cifs-utils
