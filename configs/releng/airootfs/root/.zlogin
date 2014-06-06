@@ -1,2 +1,2 @@
 ~/.automated_script.sh
-~/.mount_packages.sh & 2>&1 > /tmp/mount_packages.log
+~/.mount_packages.sh >/tmp/mount_packages.log 2>&1 &
