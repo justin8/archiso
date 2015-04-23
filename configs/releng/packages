@@ -1,4 +1,5 @@
 arch-install-scripts
+avahi
 b43-fwcutter
 bcache-tools
 bonnie++
