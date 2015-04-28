@@ -1,6 +1,8 @@
 #!/bin/bash
 BUILDDIR="configs/releng"
 set -e
+set -x
+pwd
 
 # Initial checks
 if [[ $EUID -ne 0 ]]; then
