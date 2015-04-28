@@ -18,7 +18,7 @@ git reset --hard
 git checkout master
 git reset --hard origin/master
 
-chown -R root. $BUILDDIR
+chown -R root. .
 echo "Building ISO (this may take several minutes)..."
 ./build.sh -v 2>&1 
 rc=$?
