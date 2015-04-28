@@ -17,12 +17,17 @@ git fetch --all
 git reset --hard
 git checkout master
 git reset --hard origin/master
+git clean -fd
 
 chown -R root. .
+# Use work dir on /tmp which should be tmpfs
+workdir=$(mktemp -d)
+ln -s "$workdir" work
 echo "Building ISO (this may take several minutes)..."
 set +e
-./build.sh -v 2>&1 
+ionice ./build.sh -v 2>&1
 chown -R jenkins. .
+rm -rf "$workdir"
 rc=$?
 [[ $rc != 0 ]] && echo "An error has occurred while creating the ISO" && exit $rc
 
