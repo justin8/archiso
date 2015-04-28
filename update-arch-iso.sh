@@ -30,6 +30,7 @@ chown -R jenkins. .
 rm -rf "$workdir"
 rc=$?
 [[ $rc != 0 ]] && echo "An error has occurred while creating the ISO" && exit $rc
+exit 0
 
 #echo "Updating PXE boot image on bloodwood..."
 #ssh bloodwood "/root/update-arch-pxe"
