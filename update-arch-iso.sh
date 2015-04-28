@@ -20,7 +20,9 @@ git reset --hard origin/master
 
 chown -R root. .
 echo "Building ISO (this may take several minutes)..."
+set +e
 ./build.sh -v 2>&1 
+chown -R jenkins. .
 rc=$?
 [[ $rc != 0 ]] && echo "An error has occurred while creating the ISO" && exit $rc
 
