@@ -28,3 +28,5 @@ sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 
 systemctl enable pacman-init.service sshd.service avahi-daemon.service
 systemctl set-default multi-user.target
+
+git clone https://github.com/justin8/fabulous /root/fabulous

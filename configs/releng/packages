@@ -22,8 +22,10 @@ elinks
 ethtool
 exfat-utils
 f2fs-tools
+fabric
 fio
 fsarchiver
+git
 gnu-netcat
 gpm
 gptfdisk
