@@ -48,6 +48,7 @@ lsof
 mc
 mtools
 ndisc6
+ncdu
 nethogs
 nfs-utils
 nilfs-utils
