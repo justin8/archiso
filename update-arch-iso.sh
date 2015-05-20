@@ -26,9 +26,9 @@ ln -s "$workdir" work
 echo "Building ISO (this may take several minutes)..."
 set +e
 ionice ./build.sh -v 2>&1
+rc=$?
 chown -R jenkins. .
 rm -rf "$workdir"
-rc=$?
 [[ $rc != 0 ]] && echo "An error has occurred while creating the ISO" && exit $rc
 exit 0
 
