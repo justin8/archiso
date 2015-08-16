@@ -3,6 +3,7 @@ avahi
 b43-fwcutter
 bcache-tools
 bonnie++
+broadcom-wl
 btrfs-progs
 cifs-utils
 clonezilla
@@ -91,4 +92,3 @@ wpa_actiond
 wvdial
 xl2tpd
 zd1211-firmware
-zfs-git
