@@ -1,36 +1,79 @@
 #!/bin/bash
-BUILDDIR="configs/releng"
-set -e
-set -x
-pwd
 
-# Initial checks
-if [[ $EUID -ne 0 ]]; then
-	echo "This script must be run as root" 1>&2
+SCRIPT=$(mktemp)
+grep -A10000 '^#########' "$0" > "$SCRIPT"
+cd "$(dirname "$(readlink -f "$0")")"
+CACHEDIR="/var/cache/pacman/pkg"
+VPKG=''
+[[ -e $CACHEDIR ]] && VPKG="--volume=$CACHEDIR:$CACHEDIR"
+
+docker run --privileged \
+	   $VPKG \
+	   --volume="$(pwd):/run" \
+	   --volume="${SCRIPT}:/docker_build.sh" \
+	   --workdir=/run \
+	   justin8/archlinux \
+	   /bin/bash /docker_build.sh $EUID
+rc=$?
+rm "$SCRIPT"
+
+exit $rc
+##########
+set -e
+
+if ! grep -q docker /proc/1/cgroup; then
+	echo 'This should only be run inside of docker!'
 	exit 1
 fi
 
-echo "Preparing build environment..."
-cd $BUILDDIR
+BUILDDIR="configs/releng"
+EXTERNAL_DIR=$(pwd)
+TEMP="$(mktemp -d)"
+USER="$1"
+LOG="$(mktemp)"
+OUT="$(mktemp)"
+
+cleanup() {
+	if [[ $? -ne 0 ]]; then
+		cat "$LOG" >> $OUT
+	fi
+	rm -f "$LOG" "$OUT"
+}
+
+trap cleanup EXIT SIGINT SIGTERM
+tail -f "$OUT" &
+exec &> "$LOG"
+echo -n "Updating packages... " >> "$OUT"
+pacman -Syu --noconfirm archiso make
+echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
+
+# Mount a tmpfs folder for faster building
+echo -n "Creating build dir... " >> "$OUT"
+mount -t tmpfs tmpfs "$TEMP"
+echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
+
+cd "$EXTERNAL_DIR"
+cp -r . "$TEMP"
+
+echo -n "Preparing build environment... " >> "$OUT"
+cd "$TEMP"
+make install
+cd "$BUILDDIR"
 rm -rf work out
-git fetch --all
-git reset --hard
-git checkout master
-git reset --hard origin/master
-git clean -fd
+echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-chown -R root. .
-# Use work dir on /tmp which should be tmpfs
-workdir=$(mktemp -d)
-ln -s "$workdir" work
-echo "Building ISO (this may take several minutes)..."
-set +e
+echo -n "Building ISO (this may take several minutes)... " >> "$OUT"
 ionice ./build.sh -v 2>&1
-rc=$?
-chown -R jenkins. .
-rm -rf "$workdir"
-[[ $rc != 0 ]] && echo "An error has occurred while creating the ISO" && exit $rc
-exit 0
+echo $?
+echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-#echo "Updating PXE boot image on bloodwood..."
-#ssh bloodwood "/root/update-arch-pxe"
+echo -n "Fixing permissions on ISO file... " >> "$OUT"
+chown "${USER}" work/*
+echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
+
+echo -n "Copying ISO... " >> "$OUT"
+cp work/*.iso $EXTERNAL_DIR
+echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
+
+cleanup
+exit $rc
