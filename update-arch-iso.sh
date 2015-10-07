@@ -82,4 +82,6 @@ echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
 
 cleanup
+rm "$EXTERNAL_DIR/mount/utab"
+rmdir "$EXTERNAL_DIR/mount"
 exit $rc
