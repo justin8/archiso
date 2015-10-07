@@ -7,10 +7,11 @@ CACHEDIR="/var/cache/pacman/pkg"
 VPKG=''
 [[ -e $CACHEDIR ]] && VPKG="--volume=$CACHEDIR:$CACHEDIR"
 
-docker run --privileged \
+docker run --rm \
+	   --privileged \
 	   $VPKG \
 	   --volume="$(pwd):/run" \
-	   --volume="${SCRIPT}:/docker_build.sh" \
+	   --volume="$SCRIPT:/docker_build.sh" \
 	   --workdir=/run \
 	   justin8/archlinux \
 	   /bin/bash /docker_build.sh $EUID
@@ -35,7 +36,7 @@ OUT="$(mktemp)"
 
 cleanup() {
 	if [[ $? -ne 0 ]]; then
-		cat "$LOG" >> $OUT
+		cat "$LOG" >> "$OUT"
 	fi
 	rm -f "$LOG" "$OUT"
 }
@@ -49,7 +50,10 @@ echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
 # Mount a tmpfs folder for faster building
 echo -n "Creating build dir... " >> "$OUT"
+# TODO: This creates a mount/utab file in the mounted directory; not sure how. It isn't CWD when starting docker. it seems to be the directory the script runs from. Just removing it for now.
 mount -t tmpfs tmpfs "$TEMP"
+rm "$EXTERNAL_DIR/mount/utab"
+rmdir "$EXTERNAL_DIR/mount"
 echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
 cd "$EXTERNAL_DIR"
@@ -67,13 +71,15 @@ ionice ./build.sh -v 2>&1
 echo $?
 echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-echo -n "Fixing permissions on ISO file... " >> "$OUT"
-chown "${USER}" work/*
+echo -n "Copying ISO... " >> "$OUT"
+ISO=$(find out -iname '*.iso' | cut -d/ -f2)
+cp "out/$ISO" "$EXTERNAL_DIR"
 echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-echo -n "Copying ISO... " >> "$OUT"
-cp work/*.iso $EXTERNAL_DIR
+echo -n "Fixing permissions on ISO file... " >> "$OUT"
+chown "$USER" "$EXTERNAL_DIR/$ISO"
 echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
+
 
 cleanup
 exit $rc
