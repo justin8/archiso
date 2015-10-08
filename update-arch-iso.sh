@@ -14,7 +14,7 @@ docker run --rm \
 	   --volume="$SCRIPT:/docker_build.sh" \
 	   --workdir=/run \
 	   justin8/archlinux \
-	   /bin/bash /docker_build.sh $EUID
+	   /bin/bash /docker_build.sh $EUID ${GROUPS[0]}
 rc=$?
 rm "$SCRIPT"
 
@@ -31,6 +31,7 @@ BUILDDIR="configs/releng"
 EXTERNAL_DIR=$(pwd)
 TEMP="$(mktemp -d)"
 USER="$1"
+GROUP="$2"
 LOG="$(mktemp)"
 OUT="$(mktemp)"
 
@@ -77,7 +78,7 @@ cp "out/$ISO" "$EXTERNAL_DIR"
 echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
 echo -n "Fixing permissions on ISO file... " >> "$OUT"
-chown "$USER" "$EXTERNAL_DIR/$ISO"
+chown "$USER:$GROUP" "$EXTERNAL_DIR/$ISO"
 echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
 
