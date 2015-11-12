@@ -32,57 +32,41 @@ EXTERNAL_DIR=$(pwd)
 TEMP="$(mktemp -d)"
 USER="$1"
 GROUP="$2"
-LOG="$(mktemp)"
-OUT="$(mktemp)"
 
 cleanup() {
-	if [[ $? -ne 0 ]]; then
-		cat "$LOG" >> "$OUT"
-	fi
-	rm -f "$LOG" "$OUT"
+	rm -rf "$EXTERNAL_DIR/mount"
+	rm -rf "$BUILDDIR/work" "$BUILDDIR/out"
 }
 
 trap cleanup EXIT SIGINT SIGTERM
-tail -f "$OUT" &
-exec &> "$LOG"
-echo -n "Updating packages... " >> "$OUT"
+
+# Install make and all the archiso dependencies
 pacman -Syu --noconfirm archiso make
-echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
+
+# Update to archiso version in this repo
+make install
 
 # Mount a tmpfs folder for faster building
-echo -n "Creating build dir... " >> "$OUT"
+echo "-- Creating build dir..."
 # TODO: This creates a mount/utab file in the mounted directory; not sure how. It isn't CWD when starting docker. it seems to be the directory the script runs from. Just removing it for now.
 mount -t tmpfs tmpfs "$TEMP"
-rm "$EXTERNAL_DIR/mount/utab"
-rmdir "$EXTERNAL_DIR/mount"
-echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
 cd "$EXTERNAL_DIR"
 cp -r . "$TEMP"
 
-echo -n "Preparing build environment... " >> "$OUT"
+echo "-- Preparing build environment..."
 cd "$TEMP"
 make install
 cd "$BUILDDIR"
 rm -rf work out
-echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-echo -n "Building ISO (this may take several minutes)... " >> "$OUT"
+echo "-- Building ISO (this may take several minutes)..."
 ionice ./build.sh -v 2>&1
 echo $?
-echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-echo -n "Copying ISO... " >> "$OUT"
+echo "-- Copying ISO..."
 ISO=$(find out -iname '*.iso' | cut -d/ -f2)
 cp "out/$ISO" "$EXTERNAL_DIR"
-echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
 
-echo -n "Fixing permissions on ISO file... " >> "$OUT"
+echo "-- Fixing permissions on ISO file..."
 chown "$USER:$GROUP" "$EXTERNAL_DIR/$ISO"
-echo -e "[ \e[32;1mOK\e[0m ]" >> "$OUT"
-
-
-cleanup
-rm "$EXTERNAL_DIR/mount/utab"
-rmdir "$EXTERNAL_DIR/mount"
-exit $rc
