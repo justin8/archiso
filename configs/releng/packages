@@ -43,6 +43,7 @@ ipw2200-fw
 irssi
 lftp
 linux-atm
+linux-headers
 lsscsi
 lsof
 mc
@@ -90,3 +91,4 @@ wpa_actiond
 wvdial
 xl2tpd
 zd1211-firmware
+zfs-dkms-git
