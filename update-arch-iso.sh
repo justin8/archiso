@@ -9,6 +9,7 @@ VPKG=''
 
 docker run --rm \
 	   --privileged \
+	   -t \
 	   $VPKG \
 	   --volume="$(pwd):/run" \
 	   --volume="$SCRIPT:/docker_build.sh" \
@@ -40,12 +41,6 @@ cleanup() {
 
 trap cleanup EXIT SIGINT SIGTERM
 
-# Install make and all the archiso dependencies
-pacman -Syu --noconfirm archiso make
-
-# Update to archiso version in this repo
-make install
-
 # Mount a tmpfs folder for faster building
 echo "-- Creating build dir..."
 # TODO: This creates a mount/utab file in the mounted directory; not sure how. It isn't CWD when starting docker. it seems to be the directory the script runs from. Just removing it for now.
@@ -56,6 +51,10 @@ cp -r . "$TEMP"
 
 echo "-- Preparing build environment..."
 cd "$TEMP"
+# Install make and all the archiso dependencies
+pacman -Syu --noconfirm archiso make
+
+# Update to archiso version in this repo
 make install
 cd "$BUILDDIR"
 rm -rf work out
