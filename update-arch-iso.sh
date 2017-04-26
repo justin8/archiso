@@ -30,8 +30,6 @@ if ! grep -q docker /proc/1/cgroup; then
 fi
 
 BUILDDIR="configs/releng"
-EXTERNAL_DIR=$(pwd)
-TEMP="$(mktemp -d)"
 USER="$1"
 GROUP="$2"
 
@@ -42,16 +40,7 @@ cleanup() {
 
 trap cleanup EXIT SIGINT SIGTERM
 
-# Mount a tmpfs folder for faster building
-echo "-- Creating build dir..."
-# TODO: This creates a mount/utab file in the mounted directory; not sure how. It isn't CWD when starting docker. it seems to be the directory the script runs from. Just removing it for now.
-mount -t tmpfs tmpfs "$TEMP"
-
-cd "$EXTERNAL_DIR"
-cp -r . "$TEMP"
-
 echo "-- Preparing build environment..."
-cd "$TEMP"
 # Install make and all the archiso dependencies
 pacman -Syu --noconfirm archiso make
 
