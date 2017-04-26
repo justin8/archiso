@@ -1,10 +1,11 @@
 #!/bin/bash
 
-SCRIPT=$(mktemp)
-grep -A10000 '^#########' "$0" > "$SCRIPT"
-cd "$(dirname "$(readlink -f "$0")")"
+cd "$(dirname "$0")"
 CACHEDIR="/var/cache/pacman/pkg"
 VPKG=''
+SCRIPT="$PWD/.docker_build.sh"
+grep -A10000 '^#########' "$0" > "$SCRIPT"
+
 [[ -e $CACHEDIR ]] && VPKG="--volume=$CACHEDIR:$CACHEDIR"
 
 docker run --rm \

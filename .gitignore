@@ -1,6 +1,7 @@
 *~
 archiso-*.tar.gz*
 *.iso
+.docker_build.sh
 
 ### Vim ###
 [._]*.s[a-w][a-z]
