@@ -12,11 +12,11 @@ docker run --rm \
 	   --privileged \
 	   -t \
 	   $VPKG \
-	   --volume="$(pwd):/run" \
+	   --volume="$(pwd):/run:rw" \
 	   --volume="$SCRIPT:/docker_build.sh" \
 	   --workdir=/run \
 	   justin8/archlinux \
-	   /bin/bash /docker_build.sh $EUID ${GROUPS[0]}
+	   /bin/bash -x /docker_build.sh $EUID ${GROUPS[0]}
 rc=$?
 rm "$SCRIPT"
 
@@ -41,20 +41,17 @@ cleanup() {
 trap cleanup EXIT SIGINT SIGTERM
 
 echo "-- Preparing build environment..."
-# Install make and all the archiso dependencies
 pacman -Syu --noconfirm archiso make
 
 # Update to archiso version in this repo
 make install
-cd "$BUILDDIR"
-rm -rf work out
+rm -rf "$BUILDDIR/{work,out}"
 
 echo "-- Building ISO (this may take several minutes)..."
-ionice ./build.sh -v 2>&1
-echo $?
+(cd "$BUILDDIR" && ionice ./build.sh -v 2>&1)
 
 echo "-- Copying ISO..."
-ISO=$(find . -iname '*.iso' -exec mv {} . \;)
+find . -iname '*.iso' -exec mv {} . \;
 
 echo "-- Fixing permissions on ISO file..."
-chown "$USER:$GROUP" "*.iso"
+chown "$USER:$GROUP" *.iso
