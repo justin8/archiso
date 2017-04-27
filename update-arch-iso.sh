@@ -54,8 +54,7 @@ ionice ./build.sh -v 2>&1
 echo $?
 
 echo "-- Copying ISO..."
-ISO=$(find out -iname '*.iso' | cut -d/ -f2)
-cp "out/$ISO" "$EXTERNAL_DIR"
+ISO=$(find . -iname '*.iso' -exec mv {} . \;)
 
 echo "-- Fixing permissions on ISO file..."
-chown "$USER:$GROUP" "$EXTERNAL_DIR/$ISO"
+chown "$USER:$GROUP" "*.iso"

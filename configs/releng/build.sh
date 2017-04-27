@@ -59,7 +59,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^# ${script_path}/packages)" install
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v '^#' ${script_path}/packages)" install
 }
 
 # Needed packages for x86_64 EFI boot
@@ -101,6 +101,18 @@ make_customize_airootfs() {
 
     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r '/root/customize_airootfs.sh' run
     rm ${work_dir}/${arch}/airootfs/root/customize_airootfs.sh
+}
+
+bootstrap_pacaur() {
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "pacman-key --init" run
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "pacman-key --populate" run
+    cp pacaur_installer.sh "${work_dir}/${arch}/airootfs"
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "bash /pacaur_installer.sh" run
+}
+
+make_aur_packages() {
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "sudo -u builduser EDITOR=vim pacaur -S --noconfirm $(grep -h -v '^#' ${script_path}/aur_packages)" run
+    rm -rf "${work_dir}/${arch}/airootfs/build"
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/
@@ -257,8 +269,10 @@ done
 run_once make_packages_efi
 
 for arch in x86_64; do
-    run_once make_setup_mkinitcpio
     run_once make_customize_airootfs
+    run_once bootstrap_pacaur
+    run_once make_aur_packages
+    run_once make_setup_mkinitcpio
 done
 
 for arch in x86_64; do
