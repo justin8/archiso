@@ -15,7 +15,7 @@ docker run --rm \
 	   --volume="$(pwd):/run:rw" \
 	   --volume="$SCRIPT:/docker_build.sh" \
 	   --workdir=/run \
-	   justin8/archlinux \
+	   base/archlinux \
 	   /bin/bash -x /docker_build.sh $EUID ${GROUPS[0]}
 rc=$?
 rm "$SCRIPT"
