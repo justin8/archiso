@@ -7,7 +7,7 @@ env:
 build:
   pre_ci:
     - env
-    - ./update-arch-iso.sh
+    - bash -x ./update-arch-iso.sh
   push:
     - image=${REPO_NAME#*-}
     - echo "Pushing justin8/$image:$version"
