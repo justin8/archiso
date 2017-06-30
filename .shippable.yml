@@ -1,0 +1,14 @@
+language: none
+
+env:
+  - secure: l57K8gTQ8RjsVGxiCfb7cWoixSTM7U2HNxb8OTUPVUI7sAC1cGnzhDECQ9knmmU+acwgwcp5dgap+MSdzI5CSZAX/CDLSwI6IrgT43zAB5VjiSLezvjIjNX1D7iFqXGVnV3OnKRryxVfbT+aPOjcJ7igrIW0ici9d6Ot1oQ0J9jWXG98+apDlgxRK7FLV3SKu/Q1pPOAFAEynJd4z7RaA6CYMb+ga049dZDjrdQomeCx3JQN16gYjlD3I2Vcd102Z59a5R1Qw8GJ0WqulCmCTBrsIqI6Q4afsGxJmidOyVHRFQ52ORU36/L/7lAexKC6i/TpqQG4GR3Rnc2uteodMw==
+
+
+build:
+  pre_ci:
+    - env
+    - ./update-arch-iso.sh
+  push:
+    - image=${REPO_NAME#*-}
+    - echo "Pushing justin8/$image:$version"
+    - docker push justin8/$image:latest
