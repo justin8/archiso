@@ -111,7 +111,7 @@ bootstrap_pacaur() {
 }
 
 make_aur_packages() {
-    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "sudo -u builduser EDITOR=vim pacaur -S --noconfirm $(grep -h -v '^#' ${script_path}/aur_packages)" run
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "sudo -u builduser EDITOR=vim pacaur -S --noedit --noconfirm $(grep -h -v '^#' ${script_path}/aur_packages)" run
     rm -rf "${work_dir}/${arch}/airootfs/build"
 }
 
